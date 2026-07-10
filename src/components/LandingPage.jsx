@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTheme, ThemeToggle } from '../ThemeContext'
+import LegalModal from './LegalModal'
 
 const FEATURES = [
   { icon: '🫀', title: 'ECG interactif', desc: '12 dérivations simulées avec lecture guidée et anomalies annotées.' },
@@ -25,9 +26,11 @@ const CASES_PREVIEW = [
 export default function LandingPage({ onStart }) {
   const { isDark } = useTheme()
   const [hoveredPlan, setHoveredPlan] = useState(null)
+  const [legalPage, setLegalPage] = useState(null)
 
   return (
     <div style={{ overflowY: 'auto', height: '100%', background: 'var(--bg)', color: 'var(--text)' }}>
+      <LegalModal page={legalPage} onClose={() => setLegalPage(null)} />
 
       {/* Nav */}
       <nav style={{
@@ -230,7 +233,7 @@ export default function LandingPage({ onStart }) {
         <div style={{ marginBottom: 8 }}>© 2026 Code Urgent — Dr [Nom] · Tous droits réservés</div>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 16, flexWrap: 'wrap' }}>
           {['Mentions légales', 'CGU', 'CGV', 'Confidentialité'].map(l => (
-            <span key={l} style={{ cursor: 'pointer', textDecoration: 'underline' }}>{l}</span>
+            <span key={l} onClick={() => setLegalPage(l)} style={{ cursor: 'pointer', textDecoration: 'underline' }}>{l}</span>
           ))}
         </div>
       </footer>
