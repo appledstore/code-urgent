@@ -20,7 +20,7 @@ const SPECIALTY_COLORS = {
 const CIMU_COLORS = { 1: '#DC2626', 2: '#EA580C', 3: '#D97706', 4: '#16A34A', 5: '#6B7280' }
 const CIMU_LABELS = { 1: 'CIMU 1', 2: 'CIMU 2', 3: 'CIMU 3', 4: 'CIMU 4', 5: 'CIMU 5' }
 
-export default function HomeScreen({ cases, completed, onSelect, role, onChangeRole, onDashboard, onSynthesis, bothCompleted = [] }) {
+export default function HomeScreen({ cases, completed, onSelect, role, onChangeRole, onDashboard, onCalculateurs, onSynthesis, bothCompleted = [], isPremium = false, freeCases = [] }) {
   const { t } = useLang()
   const { isDark } = useTheme()
   const [filter, setFilter] = useState('Tous')
@@ -56,6 +56,11 @@ export default function HomeScreen({ cases, completed, onSelect, role, onChangeR
           </button>
           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
             <ThemeToggle />
+            <button onClick={onCalculateurs} style={{
+              display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px',
+              cursor: 'pointer', fontSize: 11, background: 'var(--bg3)',
+              border: '1px solid var(--border)', borderRadius: 20, color: 'var(--text2)'
+            }}>🧮</button>
             <button onClick={onDashboard} style={{
               display: 'flex', alignItems: 'center', gap: 4, padding: '5px 12px',
               cursor: 'pointer', fontSize: 11, background: 'var(--bg3)',
@@ -123,9 +128,7 @@ export default function HomeScreen({ cases, completed, onSelect, role, onChangeR
           const done = completed.includes(c.id)
           const v = c.vignette || { headline: c.patient?.name, context: c.patient?.arriving, tags: [] }
           const accentColor = c.color || SPECIALTY_COLORS[c.specialty] || '#6b7280'
-
-          // IOA mode: show CIMU badge instead of specialty
-          const ioaData = isIOA ? { cimu: null } : null // cimu resolved from ioaData if needed
+          const locked = !isPremium && !freeCases.includes(c.id)
 
           return (
             <button
@@ -134,7 +137,8 @@ export default function HomeScreen({ cases, completed, onSelect, role, onChangeR
               style={{
                 width: '100%', textAlign: 'left', padding: 0,
                 background: 'none', border: 'none', cursor: 'pointer',
-                animation: `slideUp ${Math.min(0.1 + i * 0.05, 1)}s ease both`
+                animation: `slideUp ${Math.min(0.1 + i * 0.05, 1)}s ease both`,
+                opacity: locked ? 0.6 : 1
               }}
             >
               <div style={{
@@ -164,12 +168,12 @@ export default function HomeScreen({ cases, completed, onSelect, role, onChangeR
                   </div>
                   <div style={{
                     width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
-                    background: done ? (isIOA ? '#3B82F6' : accentColor) : 'var(--bg3)',
-                    border: `2px solid ${done ? (isIOA ? '#3B82F6' : accentColor) : (isIOA ? 'var(--border-ioa)' : 'var(--border)')}`,
+                    background: done ? (isIOA ? '#3B82F6' : accentColor) : locked ? '#374151' : 'var(--bg3)',
+                    border: `2px solid ${done ? (isIOA ? '#3B82F6' : accentColor) : locked ? '#4b5563' : (isIOA ? 'var(--border-ioa)' : 'var(--border)')}`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 13
+                    fontSize: done ? 13 : locked ? 11 : 13
                   }}>
-                    {done ? '✓' : i + 1}
+                    {done ? '✓' : locked ? '🔒' : i + 1}
                   </div>
                 </div>
 

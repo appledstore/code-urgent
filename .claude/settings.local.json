@@ -9,7 +9,13 @@
       "Bash(git remote *)",
       "Bash(git commit *)",
       "Bash(git branch *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(convert --version)",
+      "Bash(python3 -c \"import cairosvg\")",
+      "Bash(node -e ' *)",
+      "Bash(node -e \"const sharp = require\\('sharp'\\)\")",
+      "Bash(python3 -)",
+      "Bash(npm run *)"
     ]
   }
 }

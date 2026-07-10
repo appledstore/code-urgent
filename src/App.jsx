@@ -8,16 +8,22 @@ import SynthesisView from './components/SynthesisView'
 import Onboarding from './components/Onboarding'
 import AuthScreen from './components/AuthScreen'
 import LandingPage from './components/LandingPage'
+import UpgradeModal from './components/UpgradeModal'
+import Calculateurs from './components/Calculateurs'
 import { useLocalStorage } from './hooks/useLocalStorage'
 import { useLang, LangSwitcher } from './i18n/LangContext'
 import { ThemeToggle } from './ThemeContext'
 import { useAuth } from './lib/AuthContext'
 import { signOut } from './lib/auth'
+import { usePushNotifications } from './hooks/usePushNotifications'
 import './index.css'
 
 export default function App() {
-  const { user, loading, syncProgress, fetchRemoteProgress } = useAuth()
+  const { user, loading, isPremium, syncProgress, fetchRemoteProgress } = useAuth()
+  const FREE_CASES = ['vagal', 'stemi', 'meningite']
   const [activeCase, setActiveCase] = useState(null)
+  const [showUpgrade, setShowUpgrade] = useState(false)
+  const [showCalcs, setShowCalcs] = useState(false)
   const [role, setRole] = useState(null) // null | 'medecin' | 'ioa'
   const [completed, setCompleted] = useLocalStorage('cu_completed', [])
   const [ioaCompleted, setIoaCompleted] = useLocalStorage('cu_ioa_completed', [])
@@ -26,6 +32,15 @@ export default function App() {
   const [synthCase, setSynthCase] = useState(null)
   const [onboardingDone, setOnboardingDone] = useLocalStorage('cu_onboarding', false)
   const { t } = useLang()
+  const { notify, requestPermission, permission } = usePushNotifications()
+
+  // Demander permission notifications après connexion
+  useEffect(() => {
+    if (user && permission === 'default') {
+      const t = setTimeout(() => requestPermission(), 3000)
+      return () => clearTimeout(t)
+    }
+  }, [user, permission])
 
   // Sync depuis Supabase à la connexion
   useEffect(() => {
@@ -44,6 +59,7 @@ export default function App() {
     setCompleted(newCompleted)
     setScores(newScores)
     syncProgress(newCompleted, ioaCompleted, newScores)
+    if (!completed.includes(caseId)) notify('Cas complété ! 🎉', `${pts}/5 pts — Continuez sur votre lancée`)
   }
 
   const handleIoaComplete = (caseId, pts) => {
@@ -80,6 +96,13 @@ export default function App() {
           <AuthScreen onSuccess={() => {}} />
         </div>
       </div>
+    </div>
+  )
+
+  // Calculateurs
+  if (showCalcs) return (
+    <div style={{ height: '100dvh', width: '100%', maxWidth: 480, margin: '0 auto', background: 'var(--bg)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <Calculateurs onBack={() => setShowCalcs(false)} />
     </div>
   )
 
@@ -220,16 +243,28 @@ export default function App() {
           />
         )
       ) : (
+        <>
         <HomeScreen
           cases={CASES}
           completed={role === 'ioa' ? ioaCompleted : completed}
-          onSelect={setActiveCase}
+          onSelect={(c) => {
+            if (!isPremium && !FREE_CASES.includes(c.id)) {
+              setShowUpgrade(true)
+            } else {
+              setActiveCase(c)
+            }
+          }}
           role={role}
           onChangeRole={() => setRole(null)}
           onDashboard={() => setShowDashboard(true)}
+          onCalculateurs={() => setShowCalcs(true)}
           onSynthesis={(c) => setSynthCase(c)}
           bothCompleted={CASES.filter(c => completed.includes(c.id) && ioaCompleted.includes(c.id)).map(c => c.id)}
+          isPremium={isPremium}
+          freeCases={FREE_CASES}
         />
+        {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
+        </>
       )}
     </div>
   )
