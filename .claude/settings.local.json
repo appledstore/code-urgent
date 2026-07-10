@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find \"/Users/initialsled/Library/CloudStorage\" -name \"cases.js\" -path \"*/code-urgent/*\" 2>/dev/null)",
+      "Bash(grep -c \"^  {$\\\\|^  {\" \"/Users/initialsled/Library/CloudStorage/GoogleDrive-led.initials@gmail.com/Mon Drive/Claude code/code-urgent/src/data/cases.js\")",
+      "Bash(npm install *)",
+      "Bash(git init *)",
+      "Bash(git add *)"
+    ]
+  }
+}
