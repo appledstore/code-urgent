@@ -7,6 +7,7 @@ import Dashboard from './components/Dashboard'
 import SynthesisView from './components/SynthesisView'
 import Onboarding from './components/Onboarding'
 import AuthScreen from './components/AuthScreen'
+import LandingPage from './components/LandingPage'
 import { useLocalStorage } from './hooks/useLocalStorage'
 import { useLang, LangSwitcher } from './i18n/LangContext'
 import { ThemeToggle } from './ThemeContext'
@@ -63,7 +64,22 @@ export default function App() {
   // Auth screen si non connecté
   if (!user) return (
     <div style={{ height: '100dvh', width: '100%', maxWidth: 480, margin: '0 auto', background: 'var(--bg)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      <AuthScreen onSuccess={() => {}} />
+      <LandingPage onStart={() => {
+        document.getElementById('auth-modal').style.display = 'flex'
+      }} />
+      <div id="auth-modal" style={{
+        display: 'none', position: 'fixed', inset: 0, zIndex: 200,
+        background: '#000000aa', alignItems: 'flex-end', justifyContent: 'center'
+      }} onClick={e => { if (e.target.id === 'auth-modal') e.target.style.display = 'none' }}>
+        <div style={{
+          width: '100%', maxWidth: 480, background: 'var(--bg)',
+          borderRadius: '20px 20px 0 0', padding: '8px 0 32px',
+          maxHeight: '90dvh', overflowY: 'auto'
+        }}>
+          <div style={{ width: 40, height: 4, background: 'var(--border)', borderRadius: 2, margin: '12px auto 8px' }} />
+          <AuthScreen onSuccess={() => {}} />
+        </div>
+      </div>
     </div>
   )
 
